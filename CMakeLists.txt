@@ -102,7 +102,8 @@ if(APPLE)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     list(APPEND GMIC_CXX_COMPILE_FLAGS -Wno-error=c++11-narrowing -fpermissive)
 else()
-    list(APPEND GMIC_CXX_COMPILE_FLAGS -Wno-error=narrowing -fno-ipa-sra -fpermissive)
+    #list(APPEND GMIC_CXX_COMPILE_FLAGS -Wno-error=narrowing -fno-ipa-sra -fpermissive)
+    list(APPEND GMIC_CXX_COMPILE_FLAGS -fno-ipa-sra -fpermissive)
 endif()
 
 if(NOT "${PRERELEASE_TAG}" STREQUAL "")
@@ -208,30 +209,41 @@ if(BUILD_CLI)
   install(TARGETS gmic RUNTIME DESTINATION bin LIBRARY DESTINATION lib)
 endif()
 
+# if(BUILD_MAN)
+#   file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/man)
+#   add_custom_command(
+#     OUTPUT ${CMAKE_BINARY_DIR}/man/gmic.1
+#     DEPENDS gmic
+#     COMMAND LD_LIBRARY_PATH=${GMIC_BINARIES_PATH} ${GMIC_BINARIES_PATH}/gmic ${CMAKE_SOURCE_DIR}/src/gmic_stdlib.gmic it ${CMAKE_SOURCE_DIR}/src/gmic_stdlib.gmic reference man > ${CMAKE_BINARY_DIR}/man/gmic.1
+#   )
+#   add_custom_target(man ALL DEPENDS ${CMAKE_BINARY_DIR}/man/gmic.1)
+#   install(FILES ${CMAKE_BINARY_DIR}/man/gmic.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1/)
+# endif()
+
 if(BUILD_MAN)
   file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/man)
   add_custom_command(
     OUTPUT ${CMAKE_BINARY_DIR}/man/gmic.1
     DEPENDS gmic
-    COMMAND LD_LIBRARY_PATH=${GMIC_BINARIES_PATH} ${GMIC_BINARIES_PATH}/gmic ${CMAKE_SOURCE_DIR}/src/gmic_stdlib.gmic it ${CMAKE_SOURCE_DIR}/src/gmic_stdlib.gmic reference man > ${CMAKE_BINARY_DIR}/man/gmic.1
+    COMMAND ${CMAKE_COMMAND} -E env "PATH=${GMIC_BINARIES_PATH};$ENV{PATH}" ${GMIC_BINARIES_PATH}/gmic ${CMAKE_SOURCE_DIR}/src/gmic_stdlib.gmic it ${CMAKE_SOURCE_DIR}/src/gmic_stdlib.gmic reference man > ${CMAKE_BINARY_DIR}/man/gmic.1
   )
   add_custom_target(man ALL DEPENDS ${CMAKE_BINARY_DIR}/man/gmic.1)
   install(FILES ${CMAKE_BINARY_DIR}/man/gmic.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1/)
 endif()
 
-if(BUILD_BASH_COMPLETION)
-  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/resources)
-  add_custom_command(
-    OUTPUT ${CMAKE_BINARY_DIR}/resources/gmic_bashcompletion.sh
-    DEPENDS gmic
-    COMMAND LD_LIBRARY_PATH=${GMIC_BINARIES_PATH} ${GMIC_BINARIES_PATH}/gmic ${CMAKE_SOURCE_DIR}/src/gmic_stdlib.gmic it ${CMAKE_SOURCE_DIR}/src/gmic_stdlib.gmic parse_cli bashcompletion > ${CMAKE_BINARY_DIR}/resources/gmic_bashcompletion.sh
-  )
-  add_custom_target(bashcompletion ALL DEPENDS ${CMAKE_BINARY_DIR}/resources/gmic_bashcompletion.sh)
-  install(FILES ${CMAKE_BINARY_DIR}/resources/gmic_bashcompletion.sh
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/bash-completion/completions
-    RENAME gmic
-  )
-endif()
+# if(BUILD_BASH_COMPLETION)
+#   file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/resources)
+#   add_custom_command(
+#     OUTPUT ${CMAKE_BINARY_DIR}/resources/gmic_bashcompletion.sh
+#     DEPENDS gmic
+#     COMMAND LD_LIBRARY_PATH=${GMIC_BINARIES_PATH} ${GMIC_BINARIES_PATH}/gmic ${CMAKE_SOURCE_DIR}/src/gmic_stdlib.gmic it ${CMAKE_SOURCE_DIR}/src/gmic_stdlib.gmic parse_cli bashcompletion > ${CMAKE_BINARY_DIR}/resources/gmic_bashcompletion.sh
+#   )
+#   add_custom_target(bashcompletion ALL DEPENDS ${CMAKE_BINARY_DIR}/resources/gmic_bashcompletion.sh)
+#   install(FILES ${CMAKE_BINARY_DIR}/resources/gmic_bashcompletion.sh
+#     DESTINATION ${CMAKE_INSTALL_DATADIR}/bash-completion/completions
+#     RENAME gmic
+#   )
+# endif()
 
 include(CMakePackageConfigHelpers)
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/GmicConfig.cmake.in" "@PACKAGE_INIT@\ninclude(\${CMAKE_CURRENT_LIST_DIR}/GmicTargets.cmake)\n")
