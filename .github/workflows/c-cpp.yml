@@ -83,7 +83,7 @@ jobs:
     - name: Enter build directory and configure
       run: |
         cd build_arm64ec
-        cmake .. -A ARM64EC
+        cmake .. -A ARM64EC -DCMAKE_SYSTEM_VERSION=10
 
     - name: Build the project
       run: |
