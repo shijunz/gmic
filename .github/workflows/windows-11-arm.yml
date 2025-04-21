@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build_x64:
-    runs-on: windows-latest
+    runs-on: windows-11-arm
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -33,7 +33,7 @@ jobs:
         cmake --build .
 
   build_arm64:
-    runs-on: windows-latest
+    runs-on: windows-11-arm
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -62,7 +62,7 @@ jobs:
         cmake --build .
 
   build_arm64ec:
-    runs-on: windows-latest
+    runs-on: windows-11-arm
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
